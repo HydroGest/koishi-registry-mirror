@@ -7,7 +7,6 @@ const { URL } = require('url');
 const PLUGIN_SOURCES = [
   'https://koishi-registry.yumetsuki.moe/index.json',
   'https://koi.nyan.zone/registry/index.json',
-  'https://registry.koishi.t4wefan.pub/index.json',
   'https://kp.itzdrli.cc/index.json'
 ];
 
