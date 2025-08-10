@@ -2,10 +2,10 @@ name: Update Registry Mirror
 
 on:
   schedule:
-    - cron: '0 * * * *'   # 每小时运行一次
+    - cron: '0 * * * *'  # 每小时运行一次
   workflow_dispatch:      # 支持手动触发
   push:
-    branches: [main]      # 主分支更新时也运行
+    branches: [master]      # 主分支更新时也运行
 
 jobs:
   update:
@@ -17,7 +17,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
