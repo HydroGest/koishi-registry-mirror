@@ -37,6 +37,46 @@ async function fetchSources() {
   return allPlugins;
 }
 
+// 数据规范化函数
+function normalizePlugin(plugin) {
+  // 确保 manifest 对象存在
+  if (!plugin.manifest) {
+    plugin.manifest = {};
+  }
+  
+  // 确保 service 对象存在
+  if (!plugin.manifest.service) {
+    plugin.manifest.service = {
+      required: [],
+      optional: [],
+      implements: []
+    };
+  }
+  
+  // 确保 service 对象包含所有必要字段
+  if (!plugin.manifest.service.required) {
+    plugin.manifest.service.required = [];
+  }
+  if (!plugin.manifest.service.optional) {
+    plugin.manifest.service.optional = [];
+  }
+  if (!plugin.manifest.service.implements) {
+    plugin.manifest.service.implements = [];
+  }
+  
+  // 确保 locales 数组存在
+  if (!plugin.manifest.locales) {
+    plugin.manifest.locales = [];
+  }
+  
+  // 确保 description 存在
+  if (!plugin.manifest.description) {
+    plugin.manifest.description = plugin.package?.description || '';
+  }
+  
+  return plugin;
+}
+
 // 创建虚拟状态插件（严格按照给定格式）
 function createStatusPlugin(pluginCount, generatedAt) {
   const now = new Date();
@@ -97,6 +137,7 @@ function createStatusPlugin(pluginCount, generatedAt) {
     flags: {
       insecure: 0
     },
+    // 关键修复：确保 service 对象存在且结构正确
     manifest: {
       description: `Koishi镜像源状态 | 最后更新: ${formattedDate} | 插件: ${pluginCount} | 内存: ${rssMB}MB`,
       locales: [],
@@ -152,32 +193,35 @@ async function generateRegistry() {
     const uniquePlugins = Array.from(pluginMap.values());
     console.log(`Deduplicated to ${uniquePlugins.length} plugins`);
     
-    // 添加状态插件（确保作为第一个插件）
-    const statusPlugin = createStatusPlugin(uniquePlugins.length, generatedAt);
-    uniquePlugins.unshift(statusPlugin);
+    // 数据规范化
+    const normalizedPlugins = uniquePlugins.map(normalizePlugin);
+    
+    // 添加状态插件
+    const statusPlugin = createStatusPlugin(normalizedPlugins.length, generatedAt);
+    normalizedPlugins.push(statusPlugin);
     
     // 构建最终输出
     const output = {
       info: "Hosted by GitHub Pages Mirror",
-      total: uniquePlugins.length,
+      total: normalizedPlugins.length,
       time: new Date().toUTCString(),
       version: 1,
       generatedAt,
       rawUrl: RAW_URL,
       sources: PLUGIN_SOURCES,
-      objects: uniquePlugins
+      objects: normalizedPlugins
     };
     
     // 写入文件
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
     
     const duration = (new Date() - startTime) / 1000;
-    console.log(`✅ Successfully generated registry with ${uniquePlugins.length} plugins in ${duration.toFixed(1)}s`);
+    console.log(`✅ Successfully generated registry with ${normalizedPlugins.length} plugins in ${duration.toFixed(1)}s`);
     console.log(`Output file: ${OUTPUT_FILE}`);
     console.log(`RAW URL: ${RAW_URL}`);
     
   } catch (error) {
-    console.error('❌ Registry generation failed:', error);
+    console.error('❌❌ Registry generation failed:', error);
     process.exit(1);
   }
 }
