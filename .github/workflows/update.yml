@@ -1,0 +1,39 @@
+name: Update Registry Mirror
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # 每小时运行一次
+  workflow_dispatch:      # 支持手动触发
+  push:
+    branches: [main]      # 主分支更新时也运行
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REPOSITORY: ${{ github.repository }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install dependencies
+        run: npm install axios
+      
+      - name: Generate registry
+        run: node generate.js
+        
+      - name: Commit and push changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions@users.noreply.github.com'
+          git add index.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update registry: $(date +'%Y-%m-%d %H:%M')"
+          git push
