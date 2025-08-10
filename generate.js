@@ -11,7 +11,7 @@ const PLUGIN_SOURCES = [
 ];
 
 const OUTPUT_FILE = 'index.json';
-const RAW_URL = `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY}/main/${OUTPUT_FILE}`;
+const RAW_URL = `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY}/master/${OUTPUT_FILE}`;
 
 // 获取所有插件源数据
 async function fetchSources() {
