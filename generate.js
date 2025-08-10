@@ -1,5 +1,6 @@
 const fs = require('fs');
 const axios = require('axios');
+const os = require('os');
 const { URL } = require('url');
 
 // 配置
@@ -37,22 +38,79 @@ async function fetchSources() {
   return allPlugins;
 }
 
-// 创建虚拟状态插件
+// 创建虚拟状态插件（严格按照给定格式）
 function createStatusPlugin(pluginCount, generatedAt) {
+  const now = new Date();
+  const memoryUsage = process.memoryUsage();
+  const rssMB = Math.round(memoryUsage.rss / 1024 / 1024);
+  
+  const formattedDate = now.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  
   return {
-    _id: 'mirror-status',
+    _id: "mirror-status",
+    category: "other",
     shortname: "镜像状态",
     createdAt: generatedAt,
     updatedAt: generatedAt,
+    updated: generatedAt,
+    portable: false,
+    ignored: false,
+    verified: true,
+    score: {
+      final: 20,
+      detail: {
+        quality: 20,
+        popularity: 20,
+        maintenance: 20
+      }
+    },
+    rating: 20,
+    license: "PRIVATE",
     package: {
+      license: "PRIVATE",
       name: "koishi-plugin-mirror-status",
       version: "1.0.0",
-      description: `Koishi 镜像源状态 | 插件数: ${pluginCount} | RAW: ${RAW_URL}`,
-      links: { npm: RAW_URL }
+      description: `Koishi镜像源状态 | 最后更新: ${formattedDate} | 插件: ${pluginCount} | 内存: ${rssMB}MB`,
+      keywords: ["status", "mirror", "information"],
+      publisher: {
+        name: "YesImBot Team",
+        email: "2445691453@qq.com"
+      },
+      maintainers: [{
+        name: "YesImBot Team",
+        email: "2445691453@qq.com"
+      }],
+      date: generatedAt,
+      links: {
+        npm: RAW_URL,
+        homepage: RAW_URL
+      },
+      contributors: []
+    },
+    flags: {
+      insecure: 0
     },
     manifest: {
-      description: `最后更新: ${new Date().toLocaleString()} | 插件数: ${pluginCount}`
+      description: `Koishi镜像源状态 | 最后更新: ${formattedDate} | 插件: ${pluginCount} | 内存: ${rssMB}MB`,
+      locales: [],
+      service: {
+        required: [],
+        optional: [],
+        implements: []
+      }
     },
+    publishSize: 0,
+    insecure: false,
+    installSize: 0,
+    dependents: 0,
     downloads: {
       lastMonth: 10000
     }
@@ -64,6 +122,7 @@ async function generateRegistry() {
   try {
     console.log('Starting registry generation...');
     const startTime = new Date();
+    const generatedAt = new Date().toISOString();
     
     // 获取所有源数据
     const plugins = await fetchSources();
@@ -94,9 +153,9 @@ async function generateRegistry() {
     const uniquePlugins = Array.from(pluginMap.values());
     console.log(`Deduplicated to ${uniquePlugins.length} plugins`);
     
-    // 添加状态插件
-    const generatedAt = new Date().toISOString();
-    uniquePlugins.unshift(createStatusPlugin(uniquePlugins.length, generatedAt));
+    // 添加状态插件（确保作为第一个插件）
+    const statusPlugin = createStatusPlugin(uniquePlugins.length, generatedAt);
+    uniquePlugins.unshift(statusPlugin);
     
     // 构建最终输出
     const output = {
