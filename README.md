@@ -7,13 +7,13 @@
 在 Koishi 的插件配置页面中，找到 market 插件，将以下链接填入 `search.endpoint` 中。
 
 ```url
-https://raw.githubusercontent.com/HydroGest/koishi-registry-mirror/refs/heads/master/index.json
+https://raw.githubusercontent.com/YesWeAreBot/koishi-registry-mirror/refs/heads/master/index.json
 ```
 
 如在中国大陆地区，可使用代理：
 
 ```url
-https://gh-proxy.com/https://raw.githubusercontent.com/HydroGest/koishi-registry-mirror/refs/heads/master/index.json
+https://gh-proxy.com/https://raw.githubusercontent.com/YesWeAreBot/koishi-registry-mirror/refs/heads/master/index.json
 ```
 
 ## 致谢
