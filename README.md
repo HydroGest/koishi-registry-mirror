@@ -13,7 +13,7 @@ https://raw.githubusercontent.com/HydroGest/koishi-registry-mirror/refs/heads/ma
 如在中国大陆地区，可使用代理：
 
 ```url
-https://github.akams.cn/https://raw.githubusercontent.com/HydroGest/koishi-registry-mirror/refs/heads/master/index.json
+https://gh-proxy.com/https://raw.githubusercontent.com/HydroGest/koishi-registry-mirror/refs/heads/master/index.json
 ```
 
 ## 致谢
